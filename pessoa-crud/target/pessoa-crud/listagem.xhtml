@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+<h:head>
+    <title>CRUD de Pessoas</title>
+    <style>
+        .pessoas-table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .filter-container {
+            position: relative;
+        }
+        .filter-container i {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .filter-container input {
+            padding-left: 30px;
+        }
+        .rounded-button {
+            border-radius: 50%;
+            width: 2.5rem;
+            height: 2.5rem;
+            margin-right: 0.5rem;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        .section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #007ad9;
+        }
+        .section-title {
+            color: #007ad9;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+    </style>
+</h:head>
+<h:body>
+    <div class="card crud-demo">
+        <h:form id="form">
+            <p:growl id="messages" showDetail="true" />
+
+            <p:toolbar>
+                <p:toolbarGroup>
+                    <p:commandButton value="Nova Pessoa" icon="pi pi-plus" actionListener="#{pessoaController.novaPessoa}"
+                        update=":dialogs:manage-pessoa-content" oncomplete="PF('managePessoaDialog').show()"
+                        styleClass="ui-button-success" style="margin-right: .5rem">
+                        <p:resetInput target=":dialogs:manage-pessoa-content" />
+                    </p:commandButton>
+                    <p:commandButton id="delete-pessoas-button" value="#{pessoaController.deleteButtonMessage}"
+                        icon="pi pi-trash" actionListener="#{pessoaController.excluirPessoasSelecionadas}"
+                        styleClass="ui-button-danger" disabled="#{!pessoaController.temPessoasSelecionadas}" update="@this">
+                        <p:confirm header="Confirmação" message="Excluir as pessoas selecionadas?"
+                            icon="pi pi-exclamation-triangle" />
+                    </p:commandButton>
+                </p:toolbarGroup>
+            </p:toolbar>
+
+            <p:dataTable id="dt-pessoas" widgetVar="dtPessoas" var="pessoa" value="#{pessoaController.pessoas}"
+                reflow="true" styleClass="pessoas-table" selectionMode="multiple" selection="#{pessoaController.pessoasSelecionadas}"
+                rowKey="#{pessoa.id}" paginator="true" rows="10" selectionRowMode="add" paginatorPosition="bottom">
+                <f:facet name="header">
+                    <div class="pessoas-table-header">
+                        <span style="font-weight: bold">PESSOAS CADASTRADAS</span>
+                        <span class="filter-container ui-input-icon-left"> 
+                            <i class="pi pi-search"></i>
+                            <p:inputText id="globalFilter" onkeyup="PrimeFaces.debounce(() => PF('dtPessoas').filter())" placeholder="Buscar" />
+                        </span>
+                    </div>
+                </f:facet>
+
+                <p:ajax event="rowSelect" update=":form:delete-pessoas-button" />
+                <p:ajax event="rowUnselect" update=":form:delete-pessoas-button" />
+                <p:ajax event="rowSelectCheckbox" update=":form:delete-pessoas-button" />
+                <p:ajax event="rowUnselectCheckbox" update=":form:delete-pessoas-button" />
+                <p:ajax event="toggleSelect" update=":form:delete-pessoas-button" />
+
+                <p:column selectionBox="true" exportable="false"></p:column>
+
+                <p:column headerText="ID" sortBy="#{pessoa.id}" filterBy="#{pessoa.id}">
+                    <h:outputText value="#{pessoa.id}" />
+                </p:column>
+                <p:column headerText="Nome" sortBy="#{pessoa.nome}" filterBy="#{pessoa.nome}">
+                    <h:outputText value="#{pessoa.nome}" />
+                </p:column>
+                <p:column headerText="Email" sortBy="#{pessoa.email}" filterBy="#{pessoa.email}">
+                    <h:outputText value="#{pessoa.email}" />
+                </p:column>
+                <p:column headerText="Data Nascimento" sortBy="#{pessoa.dataNascimento}">
+                    <h:outputText value="#{pessoa.dataNascimento}">
+                        <f:convertDateTime pattern="dd/MM/yyyy" />
+                    </h:outputText>
+                </p:column>
+                <p:column exportable="false" ariaHeaderText="Ações">
+                    <p:commandButton icon="pi pi-pencil" update=":dialogs:manage-pessoa-content"
+                        oncomplete="PF('managePessoaDialog').show()"
+                        styleClass="edit-button rounded-button ui-button-success" process="@this">
+                        <f:setPropertyActionListener value="#{pessoa}" target="#{pessoaController.pessoaSelecionada}" />
+                        <p:resetInput target=":dialogs:manage-pessoa-content" />
+                    </p:commandButton>
+                    <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash"
+                                     process="@this"
+                                     oncomplete="PF('deletePessoaDialog').show()">
+                        <f:setPropertyActionListener value="#{pessoa}" target="#{pessoaController.pessoaSelecionada}" />
+                    </p:commandButton>
+                </p:column>
+            </p:dataTable>
+        </h:form>
+
+        <h:form id="dialogs">
+            <p:dialog header="Detalhes da Pessoa" showEffect="fade" modal="true" widgetVar="managePessoaDialog"
+                responsive="true" width="700" height="700">
+                <p:outputPanel id="manage-pessoa-content" class="ui-fluid">
+                    
+                    <div class="section">
+                        <div class="section-title">
+                            <i class="pi pi-id-card"></i> Dados Básicos
+                        </div>
+                        <div class="field">
+                            <p:outputLabel for="nome">Nome *</p:outputLabel>
+                            <p:inputText id="nome" value="#{pessoaController.pessoaSelecionada.nome}" required="true" style="width: 100%;" />
+                        </div>
+                        <div class="field">
+                            <p:outputLabel for="email">Email</p:outputLabel>
+                            <p:inputText id="email" value="#{pessoaController.pessoaSelecionada.email}" style="width: 100%;" />
+                        </div>
+                        <div class="field">
+                            <p:outputLabel for="dataNascimento">Data de Nascimento</p:outputLabel>
+                            <p:calendar id="dataNascimento" 
+                                       value="#{pessoaController.pessoaSelecionada.dataNascimento}"
+                                       pattern="dd/MM/yyyy"
+                                       locale="pt_BR"
+                                       showOn="button"
+                                       navigator="true"
+                                       yearRange="c-100:c"
+                                       mask="true"
+                                       style="width: 100%;" />
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">
+                            <i class="pi pi-phone"></i> Telefones
+                        </div>
+                        <div class="form-grid">
+                            <div class="field">
+                                <p:outputLabel for="ddd">DDD *</p:outputLabel>
+                                <p:inputText id="ddd" value="#{pessoaController.telefone.ddd}" maxlength="2" required="true" style="width: 100%;" />
+                            </div>
+                            <div class="field">
+                                <p:outputLabel for="numeroTelefone">Número *</p:outputLabel>
+                                <p:inputText id="numeroTelefone" value="#{pessoaController.telefone.numero}" required="true" style="width: 100%;" />
+                            </div>
+                            <div class="field">
+                                <p:outputLabel for="tipoTelefone">Tipo</p:outputLabel>
+                                <p:selectOneMenu id="tipoTelefone" value="#{pessoaController.telefone.tipo}" style="width: 100%;">
+                                    <f:selectItem itemLabel="Selecione..." itemValue="" />
+                                    <f:selectItem itemLabel="Celular" itemValue="CELULAR" />
+                                    <f:selectItem itemLabel="Residencial" itemValue="RESIDENCIAL" />
+                                    <f:selectItem itemLabel="Comercial" itemValue="COMERCIAL" />
+                                </p:selectOneMenu>
+                            </div>
+                            <div class="field">
+                                <p:commandButton value="Adicionar Telefone" icon="pi pi-plus"
+                                               action="#{pessoaController.adicionarTelefone}"
+                                               update="telefonesList :form:messages"
+                                               process="ddd numeroTelefone tipoTelefone @this"
+                                               style="margin-top: 25px; width: 100%;" />
+                            </div>
+                        </div>
+                        
+                        <h:dataTable id="telefonesList" value="#{pessoaController.pessoaSelecionada.telefones}" var="tel"
+                                     style="width: 100%; margin-top: 10px;"
+                                     rendered="#{not empty pessoaController.pessoaSelecionada.telefones}">
+                            <h:column>
+                                <f:facet name="header">Telefone</f:facet>
+                                <h:outputText value="(#{tel.ddd}) #{tel.numero} - #{tel.tipo}" />
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">Ações</f:facet>
+                                <p:commandButton icon="pi pi-trash" styleClass="ui-button-danger ui-button-rounded"
+                                               action="#{pessoaController.removerTelefone(tel)}"
+                                               update="telefonesList" />
+                            </h:column>
+                        </h:dataTable>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">
+                            <i class="pi pi-home"></i> Endereços
+                        </div>
+                        <div class="form-grid">
+                            <div class="field">
+                                <p:outputLabel for="logradouro">Logradouro *</p:outputLabel>
+                                <p:inputText id="logradouro" value="#{pessoaController.endereco.logradouro}" required="true" style="width: 100%;" />
+                            </div>
+                            <div class="field">
+                                <p:outputLabel for="numero">Número *</p:outputLabel>
+                                <p:inputText id="numero" value="#{pessoaController.endereco.numero}" required="true" style="width: 100%;" />
+                            </div>
+                            <div class="field">
+                                <p:outputLabel for="complemento">Complemento</p:outputLabel>
+                                <p:inputText id="complemento" value="#{pessoaController.endereco.complemento}" style="width: 100%;" />
+                            </div>
+                            <div class="field">
+                                <p:outputLabel for="bairro">Bairro *</p:outputLabel>
+                                <p:inputText id="bairro" value="#{pessoaController.endereco.bairro}" required="true" style="width: 100%;" />
+                            </div>
+                            <div class="field">
+                                <p:outputLabel for="cidade">Cidade *</p:outputLabel>
+                                <p:inputText id="cidade" value="#{pessoaController.endereco.cidade}" required="true" style="width: 100%;" />
+                            </div>
+                            <div class="field">
+                                <p:outputLabel for="estado">Estado *</p:outputLabel>
+                                <p:inputText id="estado" value="#{pessoaController.endereco.estado}" maxlength="2" required="true" style="width: 100%;" />
+                            </div>
+                            <div class="field">
+                                <p:outputLabel for="cep">CEP</p:outputLabel>
+                                <p:inputText id="cep" value="#{pessoaController.endereco.cep}" style="width: 100%;" />
+                            </div>
+                            <div class="field">
+                                <p:outputLabel for="tipoEndereco">Tipo</p:outputLabel>
+                                <p:selectOneMenu id="tipoEndereco" value="#{pessoaController.endereco.tipo}" style="width: 100%;">
+                                    <f:selectItem itemLabel="Selecione..." itemValue="" />
+                                    <f:selectItem itemLabel="Residencial" itemValue="RESIDENCIAL" />
+                                    <f:selectItem itemLabel="Comercial" itemValue="COMERCIAL" />
+                                    <f:selectItem itemLabel="Outro" itemValue="OUTRO" />
+                                </p:selectOneMenu>
+                            </div>
+                            <div class="field full-width">
+                                <p:commandButton value="Adicionar Endereço" icon="pi pi-plus"
+                                               action="#{pessoaController.adicionarEndereco}"
+                                               update="enderecosList :form:messages"
+                                               process="logradouro numero complemento bairro cidade estado cep tipoEndereco @this"
+                                               style="margin-top: 10px; width: 100%;" />
+                            </div>
+                        </div>
+                        
+                        <h:dataTable id="enderecosList" value="#{pessoaController.pessoaSelecionada.enderecos}" var="end"
+                                     style="width: 100%; margin-top: 10px;"
+                                     rendered="#{not empty pessoaController.pessoaSelecionada.enderecos}">
+                            <h:column>
+                                <f:facet name="header">Endereço</f:facet>
+                                <h:outputText value="#{end.logradouro}, #{end.numero} #{end.complemento}" />
+                                <h:outputText value=" - #{end.bairro}" rendered="#{not empty end.bairro}" />
+                                <h:outputText value=" - #{end.cidade}/#{end.estado}" rendered="#{not empty end.cidade}" />
+                                <h:outputText value=" - CEP: #{end.cep}" rendered="#{not empty end.cep}" />
+                                <h:outputText value=" (#{end.tipo})" rendered="#{not empty end.tipo}" />
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">Ações</f:facet>
+                                <p:commandButton icon="pi pi-trash" styleClass="ui-button-danger ui-button-rounded"
+                                               action="#{pessoaController.removerEndereco(end)}"
+                                               update="enderecosList" />
+                            </h:column>
+                        </h:dataTable>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">
+                            <i class="pi pi-file"></i> Documentos
+                        </div>
+                        <div class="form-grid">
+                            <div class="field">
+                                <p:outputLabel for="tipoDocumento">Tipo *</p:outputLabel>
+                                <p:selectOneMenu id="tipoDocumento" value="#{pessoaController.documento.tipo}" required="true" style="width: 100%;">
+                                    <f:selectItem itemLabel="Selecione..." itemValue="" />
+                                    <f:selectItem itemLabel="CPF" itemValue="CPF" />
+                                    <f:selectItem itemLabel="RG" itemValue="RG" />
+                                    <f:selectItem itemLabel="CNH" itemValue="CNH" />
+                                    <f:selectItem itemLabel="Passaporte" itemValue="PASSAPORTE" />
+                                </p:selectOneMenu>
+                            </div>
+                            <div class="field">
+                                <p:outputLabel for="numeroDocumento">Número *</p:outputLabel>
+                                <p:inputText id="numeroDocumento" value="#{pessoaController.documento.numero}" required="true" style="width: 100%;" />
+                            </div>
+                            <div class="field">
+                                <p:commandButton value="Adicionar Documento" icon="pi pi-plus"
+                                               action="#{pessoaController.adicionarDocumento}"
+                                               update="documentosList :form:messages"
+                                               process="tipoDocumento numeroDocumento @this"
+                                               style="margin-top: 25px; width: 100%;" />
+                            </div>
+                        </div>
+                        
+                        <h:dataTable id="documentosList" value="#{pessoaController.pessoaSelecionada.documentos}" var="doc"
+                                     style="width: 100%; margin-top: 10px;"
+                                     rendered="#{not empty pessoaController.pessoaSelecionada.documentos}">
+                            <h:column>
+                                <f:facet name="header">Documento</f:facet>
+                                <h:outputText value="#{doc.tipo}: #{doc.numero}" />
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">Ações</f:facet>
+                                <p:commandButton icon="pi pi-trash" styleClass="ui-button-danger ui-button-rounded"
+                                               action="#{pessoaController.removerDocumento(doc)}"
+                                               update="documentosList" />
+                            </h:column>
+                        </h:dataTable>
+                    </div>
+                        
+                </p:outputPanel>
+
+                <f:facet name="footer">
+                    <p:commandButton value="Salvar" icon="pi pi-check" actionListener="#{pessoaController.salvarPessoa}"
+                        update=":form:messages, :form:dt-pessoas" process="manage-pessoa-content @this" 
+                        oncomplete="if(!args.validationFailed) PF('managePessoaDialog').hide()" />
+                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('managePessoaDialog').hide()"
+                        class="ui-button-secondary" type="button" />
+                </f:facet>
+            </p:dialog>
+
+            <p:confirmDialog widgetVar="deletePessoaDialog" showEffect="fade" width="300"
+                message="Excluir esta pessoa?" header="Confirmar" severity="warn">
+                <p:commandButton value="Sim" icon="pi pi-check" actionListener="#{pessoaController.excluirPessoa}"
+                    process="@this" update=":form:delete-pessoas-button, :form:dt-pessoas"
+                    oncomplete="PF('deletePessoaDialog').hide()" />
+                <p:commandButton value="Não" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
+                    onclick="PF('deletePessoaDialog').hide()" />
+            </p:confirmDialog>
+
+            <p:confirmDialog global="true" showEffect="fade" width="300">
+                <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no ui-button-secondary"
+                    icon="pi pi-times" />
+            </p:confirmDialog>
+        </h:form>
+    </div>
+</h:body>
+</html>

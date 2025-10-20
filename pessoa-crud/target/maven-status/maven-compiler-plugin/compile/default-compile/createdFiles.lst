@@ -1,0 +1,15 @@
+br\com\pessoacrud\dao\UsuarioRepository.class
+br\com\pessoacrud\model\tipoDocumento.class
+br\com\pessoacrud\model\Pessoa.class
+br\com\pessoacrud\dao\CrudRespository.class
+br\com\pessoacrud\model\Endereco.class
+br\com\pessoacrud\service\IPessoaService.class
+br\com\pessoacrud\dao\PessoaRepositoryImpl.class
+br\com\pessoacrud\model\Documento.class
+br\com\pessoacrud\controller\PessoaController.class
+br\com\pessoacrud\model\Telefone.class
+br\com\pessoacrud\model\tipoEndereco.class
+br\com\pessoacrud\dao\PessoaRepository.class
+br\com\pessoacrud\model\AllArgsConstructor.class
+br\com\pessoacrud\service\PessoaService.class
+br\com\pessoacrud\model\tipoTelefone.class

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+<h:head>
+    <title>Cadastro de Pessoa</title>
+    <style>
+        .form-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #007ad9;
+        }
+        .section-title {
+            color: #007ad9;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .field {
+            margin-bottom: 15px;
+        }
+        .actions {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .item-list {
+            margin-top: 10px;
+        }
+        .item-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        .item-actions {
+            text-align: right;
+            margin-top: 10px;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        .add-button {
+            margin-top: 10px;
+        }
+    </style>
+</h:head>
+<h:body>
+    <div class="form-container">
+        
+        <h1 style="text-align: center; color: #495057; margin-bottom: 30px;">
+            <i class="pi pi-user-plus" style="margin-right: 10px;"></i>
+            #{empty pessoaController.pessoa.id ? 'Cadastro de Pessoa' : 'Editar Pessoa'}
+        </h1>
+        
+        <h:form id="formPessoa">
+            <p:growl id="messages" showDetail="true" showSummary="false"/>
+            
+            <!-- Seção: Dados Básicos -->
+            <div class="section">
+                <div class="section-title">
+                    <i class="pi pi-id-card" style="margin-right: 8px;"></i>
+                    Dados Básicos
+                </div>
+                
+                <div class="form-grid">
+                    <!-- Nome -->
+                    <div class="field full-width">
+                        <p:outputLabel for="nome" value="Nome Completo *" style="font-weight: bold; display: block; margin-bottom: 5px;"/>
+                        <p:inputText id="nome" 
+                                   value="#{pessoaController.pessoa.nome}" 
+                                   required="true" 
+                                   requiredMessage="Nome é obrigatório"
+                                   placeholder="Digite o nome completo"
+                                   style="width: 100%;"/>
+                    </div>
+                    
+                    <!-- Email -->
+                    <div class="field">
+                        <p:outputLabel for="email" value="Email" style="font-weight: bold; display: block; margin-bottom: 5px;"/>
+                        <p:inputText id="email" 
+                                   value="#{pessoaController.pessoa.email}" 
+                                   placeholder="exemplo@email.com"
+                                   style="width: 100%;"/>
+                    </div>
+                    
+                    <!-- Data Nascimento -->
+                    <div class="field">
+                        <p:outputLabel for="dataNascimento" value="Data de Nascimento" style="font-weight: bold; display: block; margin-bottom: 5px;"/>
+                        <p:calendar id="dataNascimento" 
+                                  value="#{pessoaController.pessoa.dataNascimento}"
+                                  pattern="dd/MM/yyyy"
+                                  locale="pt_BR"
+                                  showOn="button"
+                                  navigator="true"
+                                  yearRange="c-100:c"
+                                  mask="true"
+                                  style="width: 100%;"/>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção: Endereços -->
+            <div class="section">
+                <div class="section-title">
+                    <i class="pi pi-home" style="margin-right: 8px;"></i>
+                    Endereços
+                </div>
+                
+                <!-- Formulário para novo endereço -->
+                <div class="form-grid" style="background: #e9ecef; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
+                    <div class="field">
+                        <p:outputLabel for="logradouro" value="Logradouro *"/>
+                        <p:inputText id="logradouro" value="#{pessoaController.endereco.logradouro}" 
+                                   required="true" style="width: 100%;"/>
+                    </div>
+                    
+                    <div class="field">
+                        <p:outputLabel for="numero" value="Número *"/>
+                        <p:inputText id="numero" value="#{pessoaController.endereco.numero}" 
+                                   required="true" style="width: 100%;"/>
+                    </div>
+                    
+                    <div class="field">
+                        <p:outputLabel for="complemento" value="Complemento"/>
+                        <p:inputText id="complemento" value="#{pessoaController.endereco.complemento}" 
+                                   style="width: 100%;"/>
+                    </div>
+                    
+                    <div class="field">
+                        <p:outputLabel for="bairro" value="Bairro *"/>
+                        <p:inputText id="bairro" value="#{pessoaController.endereco.bairro}" 
+                                   required="true" style="width: 100%;"/>
+                    </div>
+                    
+                    <div class="field">
+                        <p:outputLabel for="cidade" value="Cidade *"/>
+                        <p:inputText id="cidade" value="#{pessoaController.endereco.cidade}" 
+                                   required="true" style="width: 100%;"/>
+                    </div>
+                    
+                    <div class="field">
+                        <p:outputLabel for="estado" value="Estado *"/>
+                        <p:inputText id="estado" value="#{pessoaController.endereco.estado}" 
+                                   required="true" style="width: 100%;" maxlength="2"/>
+                    </div>
+                    
+                    <div class="field">
+                        <p:outputLabel for="cep" value="CEP"/>
+                        <p:inputText id="cep" value="#{pessoaController.endereco.cep}" 
+                                   style="width: 100%;"/>
+                    </div>
+                    
+                    <div class="field">
+                        <p:outputLabel for="tipoEndereco" value="Tipo"/>
+                        <p:selectOneMenu id="tipoEndereco" value="#{pessoaController.endereco.tipo}" style="width: 100%;">
+                            <f:selectItem itemLabel="Selecione..." itemValue=""/>
+                            <f:selectItem itemLabel="Residencial" itemValue="RESIDENCIAL"/>
+                            <f:selectItem itemLabel="Comercial" itemValue="COMERCIAL"/>
+                            <f:selectItem itemLabel="Outro" itemValue="OUTRO"/>
+                        </p:selectOneMenu>
+                    </div>
+                    
+                    <div class="field full-width" style="text-align: center;">
+                        <p:commandButton value="Adicionar Endereço" 
+                                       icon="pi pi-plus"
+                                       action="#{pessoaController.adicionarEndereco}"
+                                       update="enderecosList"
+                                       process="@this logradouro numero complemento bairro cidade estado cep tipoEndereco"
+                                       styleClass="ui-button-primary add-button"/>
+                    </div>
+                </div>
+
+                <!-- Lista de endereços cadastrados -->
+                <div class="item-list">
+                    <p:dataList id="enderecosList" value="#{pessoaController.pessoa.enderecos}" var="endereco">
+                        <div class="item-card">
+                            <div><strong>#{endereco.tipo}</strong></div>
+                            <div>#{endereco.logradouro}, #{endereco.numero} #{endereco.complemento}</div>
+                            <div>#{endereco.bairro} - #{endereco.cidade}/#{endereco.estado}</div>
+                            <div>CEP: #{endereco.cep}</div>
+                            <div class="item-actions">
+                                <p:commandButton icon="pi pi-trash" 
+                                               styleClass="ui-button-danger ui-button-rounded"
+                                               action="#{pessoaController.removerEndereco(endereco)}"
+                                               update="enderecosList">
+                                    <p:confirm header="Confirmação" 
+                                             message="Deseja remover este endereço?" 
+                                             icon="pi pi-exclamation-triangle"/>
+                                </p:commandButton>
+                            </div>
+                        </div>
+                    </p:dataList>
+                </div>
+            </div>
+
+            <!-- Seção: Telefones -->
+            <div class="section">
+                <div class="section-title">
+                    <i class="pi pi-phone" style="margin-right: 8px;"></i>
+                    Telefones
+                </div>
+                
+                <!-- Formulário para novo telefone -->
+                <div class="form-grid" style="background: #e9ecef; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
+                    <div class="field">
+                        <p:outputLabel for="ddd" value="DDD *"/>
+                        <p:inputText id="ddd" value="#{pessoaController.telefone.ddd}" 
+                                   required="true" style="width: 100%;" maxlength="2"/>
+                    </div>
+                    
+                    <div class="field">
+                        <p:outputLabel for="numeroTelefone" value="Número *"/>
+                        <p:inputText id="numeroTelefone" value="#{pessoaController.telefone.numero}" 
+                                   required="true" style="width: 100%;"/>
+                    </div>
+                    
+                    <div class="field">
+                        <p:outputLabel for="tipoTelefone" value="Tipo"/>
+                        <p:selectOneMenu id="tipoTelefone" value="#{pessoaController.telefone.tipo}" style="width: 100%;">
+                            <f:selectItem itemLabel="Selecione..." itemValue=""/>
+                            <f:selectItem itemLabel="Celular" itemValue="CELULAR"/>
+                            <f:selectItem itemLabel="Residencial" itemValue="RESIDENCIAL"/>
+                            <f:selectItem itemLabel="Comercial" itemValue="COMERCIAL"/>
+                        </p:selectOneMenu>
+                    </div>
+                    
+                    <div class="field full-width" style="text-align: center;">
+                        <p:commandButton value="Adicionar Telefone" 
+                                       icon="pi pi-plus"
+                                       action="#{pessoaController.adicionarTelefone}"
+                                       update="telefonesList"
+                                       process="@this ddd numeroTelefone tipoTelefone"
+                                       styleClass="ui-button-primary add-button"/>
+                    </div>
+                </div>
+
+                <!-- Lista de telefones cadastrados -->
+                <div class="item-list">
+                    <p:dataList id="telefonesList" value="#{pessoaController.pessoa.telefones}" var="telefone">
+                        <div class="item-card">
+                            <div><strong>#{telefone.tipo}</strong></div>
+                            <div>(#{telefone.ddd}) #{telefone.numero}</div>
+                            <div class="item-actions">
+                                <p:commandButton icon="pi pi-trash" 
+                                               styleClass="ui-button-danger ui-button-rounded"
+                                               action="#{pessoaController.removerTelefone(telefone)}"
+                                               update="telefonesList">
+                                    <p:confirm header="Confirmação" 
+                                             message="Deseja remover este telefone?" 
+                                             icon="pi pi-exclamation-triangle"/>
+                                </p:commandButton>
+                            </div>
+                        </div>
+                    </p:dataList>
+                </div>
+            </div>
+
+            <!-- Seção: Documentos -->
+            <div class="section">
+                <div class="section-title">
+                    <i class="pi pi-file" style="margin-right: 8px;"></i>
+                    Documentos
+                </div>
+                
+                <!-- Formulário para novo documento -->
+                <div class="form-grid" style="background: #e9ecef; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
+                    <div class="field">
+                        <p:outputLabel for="tipoDocumento" value="Tipo *"/>
+                        <p:selectOneMenu id="tipoDocumento" value="#{pessoaController.documento.tipo}" style="width: 100%;">
+                            <f:selectItem itemLabel="Selecione..." itemValue=""/>
+                            <f:selectItem itemLabel="CPF" itemValue="CPF"/>
+                            <f:selectItem itemLabel="RG" itemValue="RG"/>
+                            <f:selectItem itemLabel="CNH" itemValue="CNH"/>
+                            <f:selectItem itemLabel="Passaporte" itemValue="PASSAPORTE"/>
+                        </p:selectOneMenu>
+                    </div>
+                    
+                    <div class="field">
+                        <p:outputLabel for="numeroDocumento" value="Número *"/>
+                        <p:inputText id="numeroDocumento" value="#{pessoaController.documento.numero}" 
+                                   required="true" style="width: 100%;"/>
+                    </div>
+                    
+        
+                    
+                    <div class="field full-width" style="text-align: center;">
+                        <p:commandButton value="Adicionar Documento" 
+                                       icon="pi pi-plus"
+                                       action="#{pessoaController.adicionarDocumento}"
+                                       update="documentosList"
+                                       process="@this tipoDocumento numeroDocumento dataEmissao orgaoEmissor"
+                                       styleClass="ui-button-primary add-button"/>
+                    </div>
+                </div>
+
+                <!-- Lista de documentos cadastrados -->
+                <div class="item-list">
+                    <p:dataList id="documentosList" value="#{pessoaController.pessoa.documentos}" var="documento">
+                        <div class="item-card">
+                            <div><strong>#{documento.tipo}</strong></div>
+                            <div>Número: #{documento.numero}</div>
+                            <div>Data Emissão: 
+                                <h:outputText value="#{documento.dataEmissao}">
+                                    <f:convertDateTime pattern="dd/MM/yyyy" />
+                                </h:outputText>
+                            </div>
+                            <div>Órgão: #{documento.orgaoEmissor}</div>
+                            <div class="item-actions">
+                                <p:commandButton icon="pi pi-trash" 
+                                               styleClass="ui-button-danger ui-button-rounded"
+                                               action="#{pessoaController.removerDocumento(documento)}"
+                                               update="documentosList">
+                                    <p:confirm header="Confirmação" 
+                                             message="Deseja remover este documento?" 
+                                             icon="pi pi-exclamation-triangle"/>
+                                </p:commandButton>
+                            </div>
+                        </div>
+                    </p:dataList>
+                </div>
+            </div>
+
+            <!-- Botões de Ação -->
+            <div class="actions">
+                <p:commandButton value="Salvar" 
+                               icon="pi pi-check"
+                               action="#{pessoaController.salvar}"
+                               update="messages"
+                               styleClass="ui-button-success"
+                               style="padding: 10px 20px; font-size: 16px; margin-right: 10px;"/>
+                
+                <p:button value="Voltar para Lista" 
+                         outcome="listagem"
+                         styleClass="ui-button-secondary"
+                         icon="pi pi-arrow-left"
+                         style="padding: 10px 20px; font-size: 16px; margin-right: 10px;"/>
+                
+                <p:commandButton value="Limpar" 
+                               icon="pi pi-refresh"
+                               action="#{pessoaController.limpar}"
+                               update="formPessoa"
+                               styleClass="ui-button-help"
+                               style="padding: 10px 20px; font-size: 16px;"/>
+            </div>
+        </h:form>
+
+        <!-- Confirm Dialog Global -->
+        <p:confirmDialog global="true" showEffect="fade" widgetVar="confirmDialog">
+            <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+            <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" icon="pi pi-times" />
+        </p:confirmDialog>
+    </div>
+</h:body>
+</html>
