@@ -24,6 +24,10 @@ Sistema completo para gerenciamento de pessoas desenvolvido com **JSF** e **Prim
 3. Execute no WildFly
 4. Acesse: `http://localhost:8080/pessoa-crud/listagem.xhtml`
 
+## MySql
+1. senha do mysql: 
+2. Usuario : root
+3. Senha: root
 ## 📸 Screenshots
 ![alt text](image.png)
 ##
